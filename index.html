@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Firefighter Training Program</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:#C0392B;--red-light:#FDECEA;--navy:#1A2940;--navy-light:#EBF0F7;
+  --steel:#4A6079;--green:#2D6A4F;--green-light:#E8F5EE;
+  --amber:#92621A;--amber-light:#FBF0DC;--teal:#1A6B6B;--teal-light:#E3F4F4;
+  --gray:#5A5A5A;--gray-light:#F4F4F2;--border:#E2E4E8;--text:#1A1A1A;
+  --text-2:#5A6070;--bg:#F7F8FA;--white:#FFFFFF;
+  --radius:10px;--radius-sm:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.top-nav{background:var(--navy);position:sticky;top:0;z-index:100}
+.nav-inner{max-width:480px;margin:0 auto;display:flex;padding:0 12px}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 8px;background:none;border:none;color:rgba(255,255,255,0.5);font-size:10px;font-family:'Inter',sans-serif;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s}
+.nav-btn svg{width:20px;height:20px}
+.nav-btn.active{color:#fff;border-bottom-color:var(--red)}
+.screen{display:none;max-width:480px;margin:0 auto;padding:16px 12px 80px}
+.screen.active{display:block}
+.page-header{margin-bottom:16px}
+.page-eyebrow{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);margin-bottom:4px}
+.page-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:var(--navy);line-height:1.1}
+.card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:16px;margin-bottom:12px}
+.card-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:10px}
+.card-title{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:10px}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.badge-str{background:var(--navy-light);color:var(--navy)}
+.badge-pow{background:var(--green-light);color:var(--green)}
+.badge-mid{background:var(--amber-light);color:var(--amber)}
+.badge-aer{background:var(--teal-light);color:var(--teal)}
+.badge-rec{background:var(--gray-light);color:var(--gray)}
+.hero-card{background:var(--navy);border-radius:var(--radius);padding:20px 16px;margin-bottom:12px;color:white;position:relative;overflow:hidden}
+.hero-card::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:var(--red);opacity:0.15;border-radius:50%}
+.hero-greeting{font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:4px}
+.hero-name{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;line-height:1}
+.hero-meta{display:flex;gap:16px;margin-top:14px}
+.hero-stat{display:flex;flex-direction:column}
+.hero-stat-val{font-size:22px;font-weight:600}
+.hero-stat-lbl{font-size:10px;color:rgba(255,255,255,0.5);margin-top:1px}
+.prog-bar-wrap{margin-top:14px}
+.prog-bar-label{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:5px}
+.prog-bar{height:4px;background:rgba(255,255,255,0.15);border-radius:2px}
+.prog-bar-fill{height:100%;background:var(--red);border-radius:2px;transition:width 0.4s}
+.start-btn{width:100%;padding:12px;background:var(--red);color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:10px}
+.week-row-item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.week-row-item:last-child{border-bottom:none}
+.wri-day{font-size:12px;font-weight:500}
+.wri-name{font-size:11px;color:var(--text-2)}
+.check-circle{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.check-circle.done{background:var(--green);border-color:var(--green)}
+.check-circle svg{display:none;width:12px;height:12px}
+.check-circle.done svg{display:block}
+.day-pills{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+.day-pills::-webkit-scrollbar{display:none}
+.day-pill{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);font-size:12px;font-weight:500;cursor:pointer;color:var(--text-2);transition:all 0.15s}
+.day-pill.active{border-color:var(--navy);background:var(--navy);color:white}
+.program-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
+.program-tabs::-webkit-scrollbar{display:none}
+.ptab{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;font-size:12px;cursor:pointer;color:var(--text-2);font-family:'Inter',sans-serif}
+.ptab.active{background:var(--navy);color:white;border-color:var(--navy)}
+.rationale-box{background:var(--navy-light);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--steel);line-height:1.55;margin-bottom:12px;border-left:3px solid var(--navy)}
+.ex-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.ex-item:last-child{border-bottom:none}
+.ex-letter{width:26px;height:26px;border-radius:50%;background:var(--gray-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--gray);flex-shrink:0;margin-top:1px}
+.ex-body{flex:1}
+.ex-name{font-size:14px;font-weight:500}
+.ex-sets{font-size:12px;color:var(--text-2);margin-top:1px}
+.ex-note{font-size:11px;color:var(--steel);margin-top:3px;font-style:italic}
+.circuit-box{background:var(--gray-light);border-radius:var(--radius-sm);padding:10px 12px;margin-top:10px}
+.circuit-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:6px}
+.circuit-item{font-size:13px;padding:3px 0;display:flex;gap:6px}
+.circuit-item::before{content:'•';color:var(--red);flex-shrink:0}
+.zone-option{font-size:13px;padding:3px 0;display:flex;gap:6px}
+.zone-option::before{content:'→';color:var(--teal);flex-shrink:0}
+.prog-block{margin-bottom:10px;background:var(--gray-light);border-radius:var(--radius-sm);padding:12px}
+.prog-block h4{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:4px}
+.prog-block p{font-size:12px;color:var(--text-2);line-height:1.5}
+.nutr-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nutr-card{background:var(--gray-light);border-radius:var(--radius-sm);padding:12px;text-align:center}
+.nutr-val{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--navy)}
+.nutr-lbl{font-size:10px;color:var(--text-2);margin-top:2px}
+.nutr-tip{font-size:12px;color:var(--text-2);line-height:1.55;padding:10px 12px;background:var(--gray-light);border-radius:var(--radius-sm);margin-top:8px}
+
+/* TRACKER */
+.day-select-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.day-select-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:12px;cursor:pointer;transition:border-color 0.15s}
+.day-select-card:hover{border-color:var(--navy)}
+.day-select-card.rest-day{opacity:0.55;cursor:default}
+.day-select-card.rest-day:hover{border-color:var(--border)}
+.dsc-day{font-size:10px;color:var(--text-2);margin-bottom:2px}
+.dsc-name{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:6px}
+.back-link{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-2);cursor:pointer;background:none;border:none;padding:0;font-family:'Inter',sans-serif;margin-bottom:14px}
+.back-link svg{width:16px;height:16px}
+.log-ex-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)}
+.log-ex-row:last-child{border-bottom:none}
+.log-ex-name{font-size:13px;font-weight:500}
+.log-ex-sets{font-size:11px;color:var(--text-2);margin-top:1px}
+.log-btn{font-size:11px;font-weight:500;padding:5px 12px;border:1px solid var(--border);border-radius:20px;background:none;cursor:pointer;color:var(--text-2);font-family:'Inter',sans-serif;white-space:nowrap}
+.logged-pill{font-size:11px;font-weight:500;padding:5px 10px;border-radius:20px;background:var(--green-light);color:var(--green);white-space:nowrap;cursor:pointer}
+.set-grid-header{display:grid;grid-template-columns:30px 1fr 1fr 36px;gap:6px;margin-bottom:6px}
+.set-grid-header span{font-size:10px;color:var(--text-2);text-align:center}
+.set-row{display:grid;grid-template-columns:30px 1fr 1fr 36px;gap:6px;align-items:center;margin-bottom:8px}
+.set-num{font-size:12px;color:var(--text-2);text-align:center}
+.set-input{width:100%;padding:8px 4px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--gray-light);color:var(--text);font-size:14px;text-align:center;font-family:'Inter',sans-serif}
+.set-check{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0}
+.set-check.done{background:var(--green);border-color:var(--green)}
+.set-check svg{width:14px;height:14px;display:none}
+.set-check.done svg{display:block}
+.save-btn{width:100%;padding:12px;background:var(--red);color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;margin-top:12px;font-family:'Inter',sans-serif}
+.prev-log-box{background:var(--amber-light);border-radius:var(--radius-sm);padding:8px 10px;font-size:12px;color:var(--amber);margin-bottom:12px}
+.note-field{width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--gray-light);font-size:13px;font-family:'Inter',sans-serif;color:var(--text);resize:none}
+.date-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.date-input{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--gray-light);color:var(--text);font-size:13px;font-family:'Inter',sans-serif}
+.date-today-btn{padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;font-size:12px;color:var(--text-2);cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
+
+/* REST TIMER */
+.timer-overlay{position:fixed;inset:0;background:rgba(26,41,64,0.92);z-index:200;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0}
+.timer-card{background:var(--white);border-radius:16px;padding:28px 24px 24px;width:88%;max-width:340px;text-align:center}
+.timer-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:6px}
+.timer-set-info{font-size:13px;color:var(--text-2);margin-bottom:20px}
+.timer-ring-wrap{position:relative;width:160px;height:160px;margin:0 auto 20px}
+.timer-ring-svg{width:160px;height:160px;transform:rotate(-90deg)}
+.timer-ring-bg{fill:none;stroke:var(--gray-light);stroke-width:8}
+.timer-ring-fg{fill:none;stroke:var(--red);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.timer-time{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:700;color:var(--navy)}
+.timer-sub{position:absolute;bottom:18px;left:0;right:0;font-size:11px;color:var(--text-2)}
+.timer-rest-label{font-size:13px;color:var(--text-2);margin-bottom:16px}
+.timer-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.timer-btn{padding:10px 6px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--gray-light);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;color:var(--text)}
+.timer-btn-skip{background:var(--navy);color:white;border-color:var(--navy)}
+.timer-btn-add{background:var(--amber-light);color:var(--amber);border-color:var(--amber-light)}
+.timer-done-btn{width:100%;padding:12px;background:var(--green);color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px}
+.rest-guide{background:var(--gray-light);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px}
+.rest-guide-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.rest-guide-row:last-child{border-bottom:none}
+.rest-guide-type{color:var(--text-2)}
+.rest-guide-time{font-weight:600;color:var(--navy)}
+
+/* PROGRESS */
+.pr-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.pr-row:last-child{border-bottom:none}
+.pr-lift{font-size:13px}
+.pr-val{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--navy)}
+.stat-strip{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-box{background:var(--gray-light);border-radius:var(--radius-sm);padding:12px}
+.stat-val{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:var(--navy)}
+.stat-lbl{font-size:10px;color:var(--text-2);margin-top:1px}
+.hist-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.hist-row:last-child{border-bottom:none}
+.hist-date{font-size:13px;font-weight:500}
+.hist-meta{font-size:11px;color:var(--text-2);margin-top:2px}
+.hist-detail-ex{padding:8px 0;border-bottom:1px solid var(--border)}
+.hist-detail-ex:last-child{border-bottom:none}
+.hist-detail-name{font-size:13px;font-weight:500}
+.hist-detail-sets{font-size:12px;color:var(--navy);margin-top:2px}
+.empty-state{text-align:center;padding:32px 16px;color:var(--text-2);font-size:13px;line-height:1.6}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:500;opacity:0;pointer-events:none;transition:opacity 0.25s;z-index:999;white-space:nowrap}
+.toast.show{opacity:1}
+.hidden{display:none!important}
+.mt-8{margin-top:8px}
+.mt-12{margin-top:12px}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="goNav('home',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+    </button>
+    <button class="nav-btn" onclick="goNav('program',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Program
+    </button>
+    <button class="nav-btn" onclick="goNav('tracker',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Tracker
+    </button>
+    <button class="nav-btn" onclick="goNav('progress',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Progress
+    </button>
+    <button class="nav-btn" onclick="goNav('history',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>History
+    </button>
+  </div>
+</nav>
+
+<!-- REST TIMER OVERLAY -->
+<div class="timer-overlay hidden" id="timer-overlay">
+  <div class="timer-card">
+    <div class="timer-label">Rest timer</div>
+    <div class="timer-set-info" id="timer-set-info">Set 1 complete</div>
+    <div class="timer-ring-wrap">
+      <svg class="timer-ring-svg" viewBox="0 0 160 160">
+        <circle class="timer-ring-bg" cx="80" cy="80" r="68"/>
+        <circle class="timer-ring-fg" id="timer-ring" cx="80" cy="80" r="68" stroke-dasharray="427" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-time" id="timer-display">3:00</div>
+      <div class="timer-sub" id="timer-sub">seconds remaining</div>
+    </div>
+    <div class="timer-rest-label" id="timer-rest-label">Rest · Heavy strength set</div>
+    <div class="timer-btns">
+      <button class="timer-btn timer-btn-add" onclick="addTime(30)">+30 sec</button>
+      <button class="timer-btn timer-btn-add" onclick="addTime(60)">+1 min</button>
+      <button class="timer-btn timer-btn-skip" onclick="skipTimer()">Skip →</button>
+    </div>
+    <button class="timer-done-btn hidden" id="timer-done-btn" onclick="dismissTimer()">✓ Ready — continue</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="hero-card">
+    <div class="hero-greeting" id="home-greeting">Good morning</div>
+    <div class="hero-name" id="home-date-str">Monday</div>
+    <div class="hero-meta">
+      <div class="hero-stat"><div class="hero-stat-val" id="home-week-num">1</div><div class="hero-stat-lbl">PROGRAM WEEK</div></div>
+      <div class="hero-stat"><div class="hero-stat-val" id="home-sessions">0</div><div class="hero-stat-lbl">SESSIONS</div></div>
+      <div class="hero-stat"><div class="hero-stat-val" id="home-streak">0</div><div class="hero-stat-lbl">WEEK STREAK</div></div>
+    </div>
+    <div class="prog-bar-wrap">
+      <div class="prog-bar-label"><span>Week <span id="home-week-label">1</span> of 12</span><span id="home-pct">8%</span></div>
+      <div class="prog-bar"><div class="prog-bar-fill" id="home-prog-fill" style="width:8%"></div></div>
+    </div>
+  </div>
+  <div class="card" id="home-today-card"></div>
+  <div class="card">
+    <div class="card-label">Recent sessions</div>
+    <div id="home-recent"></div>
+  </div>
+</div>
+
+<!-- PROGRAM -->
+<div id="screen-program" class="screen">
+  <div class="page-header">
+    <div class="page-eyebrow">47-Year-Old Firefighter</div>
+    <div class="page-title">12-Week Performance Program</div>
+  </div>
+  <div class="program-tabs" id="prog-section-tabs">
+    <button class="ptab active" onclick="showProgSection('schedule',this)">Schedule</button>
+    <button class="ptab" onclick="showProgSection('warmup',this)">Warmup</button>
+    <button class="ptab" onclick="showProgSection('workouts',this)">Workouts</button>
+    <button class="ptab" onclick="showProgSection('rest',this)">Rest Guide</button>
+    <button class="ptab" onclick="showProgSection('progression',this)">Progression</button>
+    <button class="ptab" onclick="showProgSection('nutrition',this)">Nutrition</button>
+  </div>
+  <div id="prog-schedule">
+    <div class="card"><div class="rationale-box" style="margin-bottom:0">Built around 4 principles: alternate lower/upper for recovery, strength before power, back resilience as a dedicated block, and conditioning that mirrors actual firefighting demands. Work sessions in order — the sequence matters more than the day of the week.</div></div>
+    <div class="card"><div class="card-label">Session order</div><div id="schedule-day-list"></div></div>
+    <div class="card"><div class="card-label">Key design principles</div><div id="schedule-principles"></div></div>
+  </div>
+  <div id="prog-warmup" class="hidden">
+    <div class="card">
+      <div class="card-label">Tissue prep — 5 min</div>
+      <div class="ex-item"><div class="ex-letter">1</div><div class="ex-body"><div class="ex-name">Cat/camel</div><div class="ex-sets">x 10, slow</div></div></div>
+      <div class="ex-item"><div class="ex-letter">2</div><div class="ex-body"><div class="ex-name">Hip flexor stretch</div><div class="ex-sets">45 sec/side</div></div></div>
+      <div class="ex-item"><div class="ex-letter">3</div><div class="ex-body"><div class="ex-name">World's greatest stretch</div><div class="ex-sets">5/side</div></div></div>
+      <div class="ex-item"><div class="ex-letter">4</div><div class="ex-body"><div class="ex-name">T-spine rotation</div><div class="ex-sets">10/side</div></div></div>
+      <div class="ex-item"><div class="ex-letter">5</div><div class="ex-body"><div class="ex-name">Dead hang</div><div class="ex-sets">30–45 sec</div><div class="ex-note">Decompresses the spine — do this every session</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-label">McGill core activation — 5 min</div>
+      <div class="ex-item"><div class="ex-letter">1</div><div class="ex-body"><div class="ex-name">McGill curl-up</div><div class="ex-sets">3 x 8</div><div class="ex-note">Not a crunch — neck supported, lower back neutral</div></div></div>
+      <div class="ex-item"><div class="ex-letter">2</div><div class="ex-body"><div class="ex-name">Bird dog</div><div class="ex-sets">3 x 8/side</div><div class="ex-note">Pause 2 sec at full extension</div></div></div>
+      <div class="ex-item"><div class="ex-letter">3</div><div class="ex-body"><div class="ex-name">Side plank</div><div class="ex-sets">3 x 30 sec/side</div><div class="ex-note">Feet stacked, hips square</div></div></div>
+    </div>
+  </div>
+  <div id="prog-workouts" class="hidden">
+    <div class="day-pills" id="workout-day-pills"></div>
+    <div id="workout-day-content"></div>
+  </div>
+  <div id="prog-rest" class="hidden">
+    <div class="card">
+      <div class="card-label">Rest periods by exercise type</div>
+      <div class="rest-guide">
+        <div class="rest-guide-row"><span class="rest-guide-type">Heavy strength (deadlift, squat, bench, pull-up)</span><span class="rest-guide-time">3–5 min</span></div>
+        <div class="rest-guide-row"><span class="rest-guide-type">Accessory / hypertrophy (RDL, rows, presses)</span><span class="rest-guide-time">90–120 sec</span></div>
+        <div class="rest-guide-row"><span class="rest-guide-type">Core work (McGill, bird dog, pallof press)</span><span class="rest-guide-time">60 sec</span></div>
+        <div class="rest-guide-row"><span class="rest-guide-type">Loaded carries (farmer, suitcase)</span><span class="rest-guide-time">60–90 sec</span></div>
+        <div class="rest-guide-row"><span class="rest-guide-type">Conditioning circuits (between rounds)</span><span class="rest-guide-time">90 sec – 2 min</span></div>
+      </div>
+      <div class="rationale-box" style="margin-bottom:0">The timer inside the tracker automatically loads the right rest period for each exercise. Tap the checkmark after completing a set and the countdown starts immediately.</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Why rest matters at 47</div>
+      <div style="font-size:13px;color:var(--text-2);line-height:1.7">
+        CNS recovery slows with age. Rushing rest on heavy sets means your nervous system hasn't fully recovered — you'll lift less, form breaks down, and injury risk goes up. The 3–5 minute window on big lifts isn't optional padding; it's what separates training from grinding. Use the time to breathe, reset your brace, and visualize the next set.
+      </div>
+    </div>
+  </div>
+  <div id="prog-progression" class="hidden">
+    <div class="card">
+      <div class="card-label">12-week plan</div>
+      <div class="prog-block"><h4>Sessions 1–8 — Orientation</h4><p>Learn the movements, stay at RPE 6. Focus on form especially hip hinge and front squat.</p></div>
+      <div class="prog-block"><h4>Sessions 9–24 — Build volume</h4><p>When all sets feel comfortable, add 5 lb upper / 10 lb lower. Track every session. RPE 7 target.</p></div>
+      <div class="prog-block"><h4>Every ~7th session — Deload</h4><p>Cut volume 50%, keep intensity. Do this by session count, not calendar week.</p></div>
+      <div class="prog-block"><h4>Sessions 26–44 — Intensity phase</h4><p>Reduce volume slightly, increase load. Work toward 3–4RM on main lifts. RPE 8–9.</p></div>
+      <div class="prog-block"><h4>Session 45+ — Retest</h4><p>Trap bar deadlift 5RM · Front squat 5RM · Bench press 5RM · Max pull-ups · 2km row time</p></div>
+      <div class="prog-block"><h4>Shift week rule</h4><p>Coming off a hard 24-hour shift counts as a training day. Treat the next session as a deload regardless of where you are in the program.</p></div>
+    </div>
+  </div>
+  <div id="prog-nutrition" class="hidden">
+    <div class="card">
+      <div class="card-label">Daily targets — goal 210 → 200 lb</div>
+      <div class="nutr-grid">
+        <div class="nutr-card"><div class="nutr-val">200–220g</div><div class="nutr-lbl">Protein/day</div></div>
+        <div class="nutr-card"><div class="nutr-val">−300–400</div><div class="nutr-lbl">Calorie deficit</div></div>
+        <div class="nutr-card"><div class="nutr-val">3–4 L</div><div class="nutr-lbl">Water/day</div></div>
+        <div class="nutr-card"><div class="nutr-val">0.5–1 lb</div><div class="nutr-lbl">Loss per week</div></div>
+      </div>
+      <div class="nutr-tip mt-8">Protein is the non-negotiable. Every meal needs an anchor — eggs, meat, fish, Greek yogurt. 200g+ protects muscle while in a deficit at 47.</div>
+      <div class="nutr-tip">Don't deficit on shift days. Eat at maintenance when on duty.</div>
+      <div class="nutr-tip">Put starchy carbs (rice, oats, potatoes) around your hardest sessions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TRACKER -->
+<div id="screen-tracker" class="screen">
+  <div id="tracker-select">
+    <div class="page-header">
+      <div class="page-eyebrow">Workout tracker</div>
+      <div class="page-title">Log a session</div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-label">Session date</div>
+      <div class="date-row">
+        <input type="date" class="date-input" id="tracker-date-input">
+        <button class="date-today-btn" onclick="setDateToday()">Today</button>
+      </div>
+      <div style="font-size:12px;color:var(--text-2)">Pick today or any past date to log a missed session.</div>
+    </div>
+    <div class="card-label" style="padding:0 2px;margin-bottom:8px">Select workout</div>
+    <div class="day-select-grid" id="tracker-day-grid"></div>
+  </div>
+  <div id="tracker-active" class="hidden">
+    <button class="back-link" onclick="trackerBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>All workouts
+    </button>
+    <div id="tracker-active-content"></div>
+  </div>
+  <div id="tracker-log-ex" class="hidden">
+    <button class="back-link" onclick="logExBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Back to workout
+    </button>
+    <div id="tracker-log-ex-content"></div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div id="screen-progress" class="screen">
+  <div class="page-header">
+    <div class="page-eyebrow">Your numbers</div>
+    <div class="page-title">Progress</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Personal records — key lifts</div>
+    <div id="pr-list"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">All-time totals</div>
+    <div class="stat-strip">
+      <div class="stat-box"><div class="stat-val" id="stat-sessions">0</div><div class="stat-lbl">Sessions</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-sets">0</div><div class="stat-lbl">Sets logged</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-vol">0</div><div class="stat-lbl">Total lbs lifted</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-streak">0</div><div class="stat-lbl">Week streak</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="screen-history" class="screen">
+  <div class="page-header">
+    <div class="page-eyebrow">Session log</div>
+    <div class="page-title">History</div>
+  </div>
+  <div class="card" id="history-card">
+    <div id="history-list"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── REST TIMES ──────────────────────────────────────────────────────────
+const REST_HEAVY = 180;   // 3 min
+const REST_ACCESSORY = 105; // 90 sec
+const REST_CORE = 60;
+const REST_CARRY = 75;
+
+const EXERCISE_REST = {
+  'Trap bar deadlift': { secs: REST_HEAVY, label: 'Heavy strength set' },
+  'Front squat':       { secs: REST_HEAVY, label: 'Heavy strength set' },
+  'Weighted pull-up':  { secs: REST_HEAVY, label: 'Heavy strength set' },
+  'Bench press':       { secs: REST_HEAVY, label: 'Heavy strength set' },
+  'Goblet squat':      { secs: REST_ACCESSORY, label: 'Accessory set' },
+  'Bulgarian split squat': { secs: REST_ACCESSORY, label: 'Accessory set' },
+  'Romanian deadlift': { secs: REST_ACCESSORY, label: 'Accessory set' },
+  'Incline DB press':  { secs: REST_ACCESSORY, label: 'Accessory set' },
+  'Chest supported row': { secs: REST_ACCESSORY, label: 'Accessory set' },
+  'Landmine press':    { secs: REST_ACCESSORY, label: 'Accessory set' },
+  'Cable row':         { secs: REST_ACCESSORY, label: 'Accessory set' },
+  'Lat pulldown':      { secs: REST_ACCESSORY, label: 'Accessory set' },
+  'Step-up':           { secs: REST_ACCESSORY, label: 'Accessory set' },
+  'Single-leg RDL':    { secs: REST_ACCESSORY, label: 'Accessory set' },
+  'Hip thrust':        { secs: REST_ACCESSORY, label: 'Accessory set' },
+  'DB lateral raise':  { secs: REST_ACCESSORY, label: 'Accessory set' },
+  'Face pull':         { secs: REST_CORE, label: 'Accessory / core set' },
+  'Band pull-apart':   { secs: REST_CORE, label: 'Core / activation set' },
+  'Cable hip flexion': { secs: REST_CORE, label: 'Core / activation set' },
+  'Pallof press':      { secs: REST_CORE, label: 'Core set' },
+  'McGill curl-up':    { secs: REST_CORE, label: 'Core set' },
+  'Bird dog':          { secs: REST_CORE, label: 'Core set' },
+  'Side plank with reach': { secs: REST_CORE, label: 'Core set' },
+  'Dead bug':          { secs: REST_CORE, label: 'Core set' },
+  'KB swing':          { secs: REST_ACCESSORY, label: 'Power set' },
+  'Farmer carry':      { secs: REST_CARRY, label: 'Loaded carry' },
+  'Suitcase carry':    { secs: REST_CARRY, label: 'Loaded carry' },
+};
+
+// ── TIMER STATE ─────────────────────────────────────────────────────────
+let timerInterval = null;
+let timerRemaining = 0;
+let timerTotal = 0;
+let timerDone = false;
+const CIRC = 2 * Math.PI * 68; // 427
+
+function startRestTimer(exerciseName, setNum) {
+  const config = EXERCISE_REST[exerciseName] || { secs: REST_ACCESSORY, label: 'Rest' };
+  timerTotal = config.secs;
+  timerRemaining = config.secs;
+  timerDone = false;
+  document.getElementById('timer-set-info').textContent = `Set ${setNum} complete — ${exerciseName}`;
+  document.getElementById('timer-rest-label').textContent = `Rest · ${config.label}`;
+  document.getElementById('timer-done-btn').classList.add('hidden');
+  document.getElementById('timer-overlay').classList.remove('hidden');
+  updateTimerDisplay();
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timerRemaining--;
+    if(timerRemaining <= 0) {
+      timerRemaining = 0;
+      clearInterval(timerInterval);
+      timerDone = true;
+      timerFinished();
+    }
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerRemaining / 60);
+  const s = timerRemaining % 60;
+  document.getElementById('timer-display').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  const progress = timerTotal > 0 ? timerRemaining / timerTotal : 0;
+  const offset = CIRC * progress;
+  document.getElementById('timer-ring').style.strokeDashoffset = (CIRC - offset);
+  const ring = document.getElementById('timer-ring');
+  if(timerRemaining <= 10 && timerRemaining > 0) {
+    ring.style.stroke = '#E67E22';
+  } else if(timerRemaining === 0) {
+    ring.style.stroke = 'var(--green)';
+  } else {
+    ring.style.stroke = 'var(--red)';
+  }
+}
+
+function timerFinished() {
+  document.getElementById('timer-ring').style.stroke = 'var(--green)';
+  document.getElementById('timer-done-btn').classList.remove('hidden');
+  // Vibrate if available
+  try { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch(e){}
+  // Play beep
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.3, 0.6].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.25);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.25);
+    });
+  } catch(e){}
+}
+
+function addTime(secs) {
+  timerRemaining += secs;
+  timerTotal = Math.max(timerTotal, timerRemaining);
+  if(timerDone) {
+    timerDone = false;
+    document.getElementById('timer-done-btn').classList.add('hidden');
+    if(timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timerRemaining--;
+      if(timerRemaining <= 0) { timerRemaining = 0; clearInterval(timerInterval); timerDone = true; timerFinished(); }
+      updateTimerDisplay();
+    }, 1000);
+  }
+  updateTimerDisplay();
+}
+
+function skipTimer() { clearInterval(timerInterval); dismissTimer(); }
+function dismissTimer() { document.getElementById('timer-overlay').classList.add('hidden'); clearInterval(timerInterval); }
+
+// ── DATA ────────────────────────────────────────────────────────────────
+const DAYS = [
+  {key:'mon',label:'Mon',full:'Lower Strength',name:'Lower Strength',badge:'badge-str',rest:false,exercises:[
+    {l:'A',n:'Trap bar deadlift',s:'4 × 4–5',note:'RPE 7 — primary strength driver',sets:4},
+    {l:'B',n:'Goblet squat',s:'3 × 10',note:'Hip/ankle warmup pattern',sets:3},
+    {l:'C',n:'Bulgarian split squat',s:'3 × 8/leg',note:'Unilateral — reduces compensation patterns',sets:3},
+    {l:'D',n:'Romanian deadlift',s:'3 × 8',note:'Flat back, hinge from hips',sets:3},
+    {l:'E',n:'Cable hip flexion',s:'3 × 12/leg',note:'Strengthen hip flexors — key for lumbar stability',sets:3},
+    {l:'F',n:'Pallof press',s:'3 × 12/side',note:'Anti-rotation core',sets:3},
+    {l:'G',n:'Farmer carry',s:'3 × 50m',note:'Grip, core, posterior chain',sets:3},
+  ],circuit:null},
+  {key:'tue',label:'Tue',full:'Upper Strength',name:'Upper Strength',badge:'badge-str',rest:false,exercises:[
+    {l:'A',n:'Weighted pull-up',s:'4 × 4–6',note:'Add weight when 6 reps feel easy',sets:4},
+    {l:'B',n:'Bench press',s:'4 × 5',note:'RPE 7',sets:4},
+    {l:'C',n:'Chest supported row',s:'4 × 8',note:'Takes lower back out entirely',sets:4},
+    {l:'D',n:'Landmine press',s:'3 × 8/side',note:'Rotational pressing — job-specific',sets:3},
+    {l:'E',n:'Face pull',s:'3 × 15',note:'External rotation + rear delt health',sets:3},
+    {l:'F',n:'Band pull-apart',s:'3 × 20',note:'Superset with face pulls',sets:3},
+    {l:'G',n:'Suitcase carry',s:'3 × 40m/side',note:'Anti-lateral flexion',sets:3},
+  ],circuit:null},
+  {key:'wed',label:'Wed',full:'Back + Zone 2',name:'Back + Zone 2',badge:'badge-mid',rest:false,exercises:[
+    {l:'A',n:'McGill curl-up',s:'3 × 10',note:'Lower back neutral',sets:3},
+    {l:'B',n:'Bird dog',s:'3 × 10/side',note:'2 sec pause at extension',sets:3},
+    {l:'C',n:'Side plank with reach',s:'3 × 8/side',sets:3},
+    {l:'D',n:'Dead bug',s:'3 × 10/side',note:'Exhale fully at bottom',sets:3},
+    {l:'E',n:'Hip thrust',s:'3 × 12',note:'Heavy enough to feel it',sets:3},
+    {l:'F',n:'Farmer carry',s:'4 × 50m',note:'Loaded spine in neutral',sets:4},
+  ],circuit:{title:'Zone 2 — 30 min after, HR 120–140 bpm',items:['Rowing machine','Incline treadmill walk','Stair climber']}},
+  {key:'thu',label:'Thu',full:'Lower Power',name:'Lower Power',badge:'badge-pow',rest:false,exercises:[
+    {l:'A',n:'Front squat',s:'4 × 4–5',note:'RPE 7 — bracing and upright posture',sets:4},
+    {l:'B',n:'Step-up',s:'3 × 10/leg',note:"Controlled — don't push off back foot",sets:3},
+    {l:'C',n:'Single-leg RDL',s:'3 × 8/leg',note:'Slow eccentric',sets:3},
+    {l:'D',n:'Cable hip flexion',s:'3 × 12/leg',note:'Second weekly dose',sets:3},
+    {l:'E',n:'KB swing',s:'5 × 12',note:'Hinge-driven, not squat-driven',sets:5},
+  ],circuit:{title:'Work capacity — 4 rounds, rest 90 sec',items:['12 KB swings — heavy','8 goblet squats','10 push-ups','200m row']}},
+  {key:'fri',label:'Fri',full:'Upper + Conditioning',name:'Upper + Conditioning',badge:'badge-str',rest:false,exercises:[
+    {l:'A',n:'Incline DB press',s:'3 × 8',note:'Volume work',sets:3},
+    {l:'B',n:'Cable row',s:'3 × 10',note:'Keep back neutral',sets:3},
+    {l:'C',n:'Lat pulldown',s:'3 × 10',note:'Full stretch at top',sets:3},
+    {l:'D',n:'DB lateral raise',s:'3 × 15',note:'Light weight, full range',sets:3},
+  ],circuit:{title:'Firefighter circuit — 4 rounds, rest 2 min',items:['Farmer carry 40m — heavy','8 burpees','15 KB swings','10 ring/TRX rows','10 push-ups']}},
+  {key:'sat',label:'Sat',full:'Zone 2 + Mobility',name:'Zone 2 + Mobility',badge:'badge-aer',rest:true},
+  {key:'sun',label:'Sun',full:'Full Recovery',name:'Full Recovery',badge:'badge-rec',rest:true},
+];
+
+const KEY_LIFTS = ['Trap bar deadlift','Bench press','Front squat','Weighted pull-up','Romanian deadlift'];
+let logs={}, prs={}, currentDay=null, currentExIdx=null, sessionSets={};
+
+function init() {
+  try { const _l=localStorage.getItem('ff3-logs'); if(_l) logs=JSON.parse(_l); } catch(e){}
+  try { const _p=localStorage.getItem('ff3-prs'); if(_p) prs=JSON.parse(_p); } catch(e){}
+  setDateToday();
+  buildSchedule();
+  buildTrackerGrid();
+  buildWorkoutPills();
+  renderHome();
+}
+function saveLogs(){ try{ localStorage.setItem('ff3-logs', JSON.stringify(logs)); }catch(e){} }
+function savePRs(){ try{ localStorage.setItem('ff3-prs', JSON.stringify(prs)); }catch(e){} }
+
+function setDateToday(){ document.getElementById('tracker-date-input').value = new Date().toLocaleDateString('en-CA'); }
+function getSelectedDate(){ return document.getElementById('tracker-date-input').value || new Date().toLocaleDateString('en-CA'); }
+function formatDateNice(ds){
+  if(!ds) return '';
+  const d=new Date(ds+'T12:00:00');
+  const dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${dn[d.getDay()]} ${mn[d.getMonth()]} ${d.getDate()}`;
+}
+
+function goNav(screen,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+screen).classList.add('active');
+  btn.classList.add('active');
+  if(screen==='progress') renderProgress();
+  if(screen==='history') renderHistory();
+  if(screen==='home') renderHome();
+}
+
+function renderHome(){
+  const now=new Date();
+  const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const h=now.getHours();
+  document.getElementById('home-greeting').textContent=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('home-date-str').textContent=`${dn[now.getDay()]}, ${mn[now.getMonth()]} ${now.getDate()}`;
+  const total=Object.keys(logs).length;
+  const wk=Math.min(12,Math.floor(total/4)+1);
+  const pct=Math.round((wk/12)*100);
+  document.getElementById('home-week-num').textContent=wk;
+  document.getElementById('home-week-label').textContent=wk;
+  document.getElementById('home-sessions').textContent=total;
+  document.getElementById('home-streak').textContent=calcStreak();
+  document.getElementById('home-pct').textContent=pct+'%';
+  document.getElementById('home-prog-fill').style.width=pct+'%';
+  const trainDays=DAYS.filter(d=>!d.rest);
+  const lastLogged={};
+  trainDays.forEach(d=>{
+    const entries=Object.entries(logs).filter(([,v])=>v.day===d.key).sort((a,b)=>b[1].date.localeCompare(a[1].date));
+    lastLogged[d.key]=entries.length?entries[0][1].date:null;
+  });
+  const suggested=trainDays.slice().sort((a,b)=>(lastLogged[a.key]||'0000-00-00').localeCompare(lastLogged[b.key]||'0000-00-00'))[0];
+  document.getElementById('home-today-card').innerHTML=`<div class="card-label">Suggested next session</div>
+    <div style="font-size:17px;font-weight:600;color:var(--navy);margin-bottom:4px">${suggested.full}</div>
+    <span class="badge ${suggested.badge}">${suggested.name}</span>
+    <div style="font-size:12px;color:var(--text-2);margin-top:6px">${lastLogged[suggested.key]?'Last done: '+formatDateNice(lastLogged[suggested.key]):'Not done yet'}</div>
+    <button class="start-btn" onclick="startSession('${suggested.key}')">Start this session</button>`;
+  const recent=Object.entries(logs).sort((a,b)=>b[1].date.localeCompare(a[1].date)).slice(0,5);
+  const recentEl=document.getElementById('home-recent');
+  if(!recent.length){recentEl.innerHTML='<div style="font-size:13px;color:var(--text-2)">No sessions logged yet.</div>';return;}
+  recentEl.innerHTML=recent.map(([,v])=>`<div class="week-row-item">
+    <div><div class="wri-day">${formatDateNice(v.date)}</div><div class="wri-name">${v.dayName}</div></div>
+    <div class="check-circle done"><svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg></div>
+  </div>`).join('');
+}
+
+function startSession(key){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>{if(i===2)b.classList.add('active');else b.classList.remove('active');});
+  document.getElementById('screen-tracker').classList.add('active');
+  setDateToday();
+  openTrackerDay(DAYS.find(d=>d.key===key));
+}
+
+const progSections=['schedule','warmup','workouts','rest','progression','nutrition'];
+function showProgSection(id,btn){
+  progSections.forEach(s=>document.getElementById('prog-'+s).classList.add('hidden'));
+  document.getElementById('prog-'+id).classList.remove('hidden');
+  document.querySelectorAll('#prog-section-tabs .ptab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(id==='workouts') renderWorkoutDay(currentWorkoutDay||'mon');
+}
+
+function buildSchedule(){
+  document.getElementById('schedule-day-list').innerHTML=DAYS.map(d=>`
+    <div class="week-row-item">
+      <div><div class="wri-day">${d.full}</div><div class="wri-name">${d.name}</div></div>
+      <span class="badge ${d.badge}">${d.rest?'Rest':'Train'}</span>
+    </div>`).join('');
+  document.getElementById('schedule-principles').innerHTML=[
+    ['Work sessions in order','Lower Strength → Upper Strength → Back+Zone2 → Lower Power → Upper+Conditioning. Sequence protects your back and CNS regardless of which day of the week you train.'],
+    ['Lower/Upper alternation','Hinge pattern in session 1 has 2 full sessions before next hinge in session 4. More recovery, less back fatigue.'],
+    ['Wednesday = back resilience','Dedicated McGill work, loaded carries, posterior chain — most important injury prevention session.'],
+    ['Strength before power','Heavy front squat leads session 4. KB swings follow. Never program explosive work on a fatigued CNS.'],
+    ['Hip flexor strength twice weekly','Sessions 1 and 4 — not just stretched, trained. Root cause of lumbar strain in load-bearing work.'],
+  ].map(([t,d])=>`<div class="ex-item"><div class="ex-body"><div class="ex-name">${t}</div><div class="ex-note" style="font-style:normal;margin-top:2px;color:var(--text-2)">${d}</div></div></div>`).join('');
+}
+
+let currentWorkoutDay='mon';
+function buildWorkoutPills(){
+  document.getElementById('workout-day-pills').innerHTML=DAYS.map(d=>
+    `<button class="day-pill${d.key==='mon'?' active':''}" onclick="renderWorkoutDay('${d.key}',this)">${d.label}</button>`).join('');
+}
+function renderWorkoutDay(key,btn){
+  currentWorkoutDay=key;
+  if(btn){document.querySelectorAll('#workout-day-pills .day-pill').forEach(p=>p.classList.remove('active'));btn.classList.add('active');}
+  const d=DAYS.find(x=>x.key===key);
+  const el=document.getElementById('workout-day-content');
+  const rationales={
+    mon:'Week starts with the heaviest hinge pattern. Hip flexor strength work addresses the root cause of most low back problems in load-bearing occupations.',
+    tue:'Pull:push ratio is 2:1. Firefighters are chronically anterior-dominant — this redresses the imbalance and protects the shoulder and thoracic spine.',
+    wed:'The most important session for your goals. Back resilience leads the day, fresh, with full intent.',
+    thu:'Strength before power. Heavy front squat when the CNS is ready, then KB swings, then the conditioning circuit.',
+    fri:"Upper volume is moderate. This session's real purpose is the conditioning circuit — built to mirror forcible entry, hose drag, and patient carries.",
+    sat:'Long easy aerobic work is your primary fat loss lever and best recovery tool. Keep it strictly conversational.',
+    sun:'Full recovery. Walk, sleep, eat well.',
+  };
+  if(d.rest){
+    let html=`<div class="card"><span class="badge ${d.badge}">${d.name}</span><p style="font-size:13px;color:var(--text-2);margin-top:10px">${rationales[key]}</p>`;
+    if(key==='sat') html+=`</div><div class="card"><div class="card-label">Options — 45–60 min, conversational pace</div>
+      <div class="zone-option">Ruck walk</div><div class="zone-option">Hiking</div><div class="zone-option">Outdoor cycling</div><div class="zone-option">Incline treadmill walk</div>
+      <div class="circuit-box mt-12"><div class="circuit-label">Mobility circuit — 2 rounds after</div>
+      <div class="circuit-item">Couch stretch × 90 sec/side</div><div class="circuit-item">Pigeon stretch × 90 sec/side</div>
+      <div class="circuit-item">Thoracic rotation × 10/side</div><div class="circuit-item">Dead hang × 45 sec</div>
+      <div class="circuit-item">90/90 hip stretch × 60 sec/side</div></div>`;
+    el.innerHTML=html+`</div>`;return;
+  }
+  let html=`<div class="card"><span class="badge ${d.badge}">${d.full}</span>
+    <div class="rationale-box mt-8">${rationales[key]}</div>
+    <div class="card-label">Exercises</div>`;
+  d.exercises.forEach(ex=>{
+    const rest=EXERCISE_REST[ex.n];
+    const restLabel=rest?(rest.secs>=180?'3–5 min rest':rest.secs>=90?'90–120 sec rest':'60–90 sec rest'):'';
+    html+=`<div class="ex-item"><div class="ex-letter">${ex.l}</div><div class="ex-body">
+      <div class="ex-name">${ex.n}</div><div class="ex-sets">${ex.s}</div>
+      ${ex.note?`<div class="ex-note">${ex.note}</div>`:''}
+      ${restLabel?`<div class="ex-note" style="color:var(--red);font-style:normal">⏱ ${restLabel}</div>`:''}
+    </div></div>`;
+  });
+  html+=`</div>`;
+  if(d.circuit){
+    html+=`<div class="card"><div class="circuit-box" style="background:var(--navy-light)"><div class="circuit-label" style="color:var(--navy)">${d.circuit.title}</div>`;
+    d.circuit.items.forEach(i=>html+=`<div class="circuit-item" style="color:var(--navy)">${i}</div>`);
+    html+=`</div></div>`;
+  }
+  el.innerHTML=html;
+}
+
+function buildTrackerGrid(){
+  document.getElementById('tracker-day-grid').innerHTML=DAYS.map(d=>`
+    <div class="day-select-card${d.rest?' rest-day':''}" onclick="${d.rest?'':'openTrackerDay(DAYS['+DAYS.indexOf(d)+'])'}">
+      <div class="dsc-day">${d.full}</div>
+      <div class="dsc-name">${d.name}</div>
+      <span class="badge ${d.badge}">${d.rest?'Rest':'Train'}</span>
+    </div>`).join('');
+}
+
+function openTrackerDay(day){
+  currentDay=day;sessionSets={};
+  document.getElementById('tracker-select').classList.add('hidden');
+  document.getElementById('tracker-active').classList.remove('hidden');
+  renderTrackerActive();
+}
+
+function renderTrackerActive(){
+  const d=currentDay;
+  const dateStr=getSelectedDate();
+  let html=`<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span class="badge ${d.badge}">${d.full}</span>
+      <span style="font-size:12px;color:var(--text-2)">${formatDateNice(dateStr)}</span>
+    </div>
+    <div class="card-label">Exercises</div>`;
+  d.exercises.forEach((ex,i)=>{
+    const logged=sessionSets[`${d.key}-${i}`];
+    html+=`<div class="log-ex-row">
+      <div><div class="log-ex-name">${ex.n}</div><div class="log-ex-sets">${ex.s}</div></div>
+      ${logged?`<span class="logged-pill" onclick="openLogEx(${i})">✓ ${logged}</span>`:`<button class="log-btn" onclick="openLogEx(${i})">Log</button>`}
+    </div>`;
+  });
+  const allDone=d.exercises.every((_,i)=>sessionSets[`${d.key}-${i}`]);
+  html+=`</div>`;
+  if(allDone) html+=`<div class="card"><div class="card-label">Session notes (optional)</div>
+    <textarea class="note-field" id="session-note-field" rows="2" placeholder="How did it feel? Anything notable..."></textarea>
+    <button class="save-btn" onclick="finishSession()">Save session</button></div>`;
+  document.getElementById('tracker-active-content').innerHTML=html;
+}
+
+function openLogEx(idx){
+  currentExIdx=idx;
+  const ex=currentDay.exercises[idx];
+  const lastLog=findLastLog(currentDay.key,idx);
+  const prevHtml=lastLog?`<div class="prev-log-box">Last session: ${lastLog}</div>`:'';
+  const restConfig=EXERCISE_REST[ex.n]||{secs:REST_ACCESSORY,label:'Rest'};
+  const restMin=Math.floor(restConfig.secs/60);
+  const restSec=restConfig.secs%60;
+  const restStr=restSec?`${restMin}:${restSec.toString().padStart(2,'0')}`:`${restMin} min`;
+  let setsHtml=`<div style="background:var(--navy-light);border-radius:var(--radius-sm);padding:8px 12px;font-size:12px;color:var(--steel);margin-bottom:12px">
+    ⏱ Rest timer: <strong>${restStr}</strong> · ${restConfig.label} — starts automatically after each set</div>`;
+  setsHtml+=`<div class="set-grid-header"><span>Set</span><span>Weight (lb)</span><span>Reps</span><span></span></div>`;
+  for(let s=1;s<=ex.sets;s++){
+    setsHtml+=`<div class="set-row">
+      <div class="set-num">${s}</div>
+      <input class="set-input" type="number" id="w${s}" placeholder="lbs" min="0" step="5">
+      <input class="set-input" type="number" id="r${s}" placeholder="reps" min="0" step="1">
+      <button class="set-check" id="chk${s}" onclick="markSet(${s},'${ex.n}')">
+        <svg viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 7 5.5 10.5 12 3"/></svg>
+      </button></div>`;
+  }
+  document.getElementById('tracker-log-ex-content').innerHTML=`
+    <div class="card">
+      <div class="card-title">${ex.n}</div>
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:12px">Target: ${ex.s}</div>
+      ${prevHtml}${setsHtml}
+      <button class="save-btn" onclick="saveEx()">Save all sets</button>
+    </div>`;
+  document.getElementById('tracker-active').classList.add('hidden');
+  document.getElementById('tracker-log-ex').classList.remove('hidden');
+}
+
+function markSet(setNum, exerciseName){
+  const btn=document.getElementById('chk'+setNum);
+  if(btn.classList.contains('done')) return; // already marked
+  btn.classList.add('done');
+  // Check if this isn't the last set before starting timer
+  startRestTimer(exerciseName, setNum);
+}
+
+function saveEx(){
+  const ex=currentDay.exercises[currentExIdx];
+  let parts=[];
+  for(let s=1;s<=ex.sets;s++){
+    const w=document.getElementById('w'+s)?.value;
+    const r=document.getElementById('r'+s)?.value;
+    if(w&&r) parts.push(`${w}×${r}`);
+  }
+  sessionSets[`${currentDay.key}-${currentExIdx}`]=parts.join(', ')||'Done';
+  showToast('Sets saved');
+  logExBack();
+}
+
+function logExBack(){
+  document.getElementById('tracker-log-ex').classList.add('hidden');
+  document.getElementById('tracker-active').classList.remove('hidden');
+  renderTrackerActive();
+}
+function trackerBack(){
+  document.getElementById('tracker-active').classList.add('hidden');
+  document.getElementById('tracker-select').classList.remove('hidden');
+}
+
+function finishSession(){
+  const dateStr=getSelectedDate();
+  const note=document.getElementById('session-note-field')?.value||'';
+  const exData={};
+  currentDay.exercises.forEach((_,i)=>{if(sessionSets[`${currentDay.key}-${i}`])exData[i]=sessionSets[`${currentDay.key}-${i}`];});
+  const logKey=`${currentDay.key}-${dateStr}-${Date.now()}`;
+  logs[logKey]={day:currentDay.key,dayName:currentDay.name,date:dateStr,note,exercises:exData};
+  updatePRs();
+  saveLogs();savePRs();
+  showToast('Session saved!');
+  sessionSets={};
+  trackerBack();
+  renderHome();
+}
+
+function updatePRs(){
+  currentDay.exercises.forEach((ex,i)=>{
+    const setStr=sessionSets[`${currentDay.key}-${i}`];
+    if(!setStr||!KEY_LIFTS.includes(ex.n))return;
+    setStr.split(',').forEach(s=>{
+      const p=s.trim().split('×');
+      if(p.length===2){const w=parseFloat(p[0]),r=parseInt(p[1]);if(!isNaN(w)&&w>0&&(!prs[ex.n]||w>prs[ex.n].w))prs[ex.n]={w,r,date:getSelectedDate()};}
+    });
+  });
+}
+
+function findLastLog(dayKey,exIdx){
+  const entries=Object.entries(logs).filter(([,v])=>v.day===dayKey).sort((a,b)=>b[1].date.localeCompare(a[1].date));
+  return entries.length?entries[0][1].exercises?.[exIdx]||null:null;
+}
+
+function renderProgress(){
+  document.getElementById('pr-list').innerHTML=KEY_LIFTS.map(lift=>{
+    const pr=prs[lift];
+    return `<div class="pr-row"><span class="pr-lift">${lift}</span><span class="pr-val">${pr?pr.w+'lb × '+pr.r:'—'}</span></div>`;
+  }).join('');
+  let totalSets=0,totalVol=0;
+  Object.values(logs).forEach(l=>{
+    Object.values(l.exercises||{}).forEach(ex=>{
+      ex.split(',').forEach(s=>{totalSets++;const p=s.trim().split('×');if(p.length===2){const w=parseFloat(p[0]),r=parseInt(p[1]);if(!isNaN(w)&&!isNaN(r))totalVol+=w*r;}});
+    });
+  });
+  document.getElementById('stat-sessions').textContent=Object.keys(logs).length;
+  document.getElementById('stat-sets').textContent=totalSets;
+  document.getElementById('stat-vol').textContent=totalVol>1000?Math.round(totalVol/1000)+'k':totalVol;
+  document.getElementById('stat-streak').textContent=calcStreak();
+}
+
+function calcStreak(){
+  const dates=[...new Set(Object.values(logs).map(l=>l.date))].sort().reverse();
+  if(!dates.length)return 0;
+  let streak=1,prev=dates[0];
+  for(let i=1;i<dates.length;i++){
+    const diff=(new Date(prev)-new Date(dates[i]))/(1000*60*60*24);
+    if(diff<=7){streak++;prev=dates[i];}else break;
+  }
+  return streak;
+}
+
+function renderHistory(){
+  const entries=Object.entries(logs).sort((a,b)=>b[1].date.localeCompare(a[1].date)).slice(0,40);
+  if(!entries.length){document.getElementById('history-list').innerHTML='<div class="empty-state">No sessions logged yet.<br>Log your first workout to get started.</div>';return;}
+  document.getElementById('history-list').innerHTML=entries.map(([k,v])=>{
+    const d=DAYS.find(x=>x.key===v.day);
+    return `<div class="hist-row" onclick="showHistDetail('${k}')">
+      <div><div class="hist-date">${formatDateNice(v.date)}</div><div class="hist-meta"><span class="badge ${d?d.badge:''}">${v.dayName}</span></div></div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;color:var(--text-2)">${Object.keys(v.exercises||{}).length} ex</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-2)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </div>`;
+  }).join('');
+}
+
+function showHistDetail(key){
+  const log=logs[key];if(!log)return;
+  const d=DAYS.find(x=>x.key===log.day);
+  let html=`<button class="back-link" onclick="renderHistory()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+    <div class="card"><span class="badge ${d?d.badge:''}">${log.dayName}</span>
+    <div style="font-size:12px;color:var(--text-2);margin-top:6px;margin-bottom:12px">${formatDateNice(log.date)}</div>`;
+  if(d&&d.exercises)d.exercises.forEach((ex,i)=>{
+    if(log.exercises[i])html+=`<div class="hist-detail-ex"><div class="hist-detail-name">${ex.n}</div><div class="hist-detail-sets">${log.exercises[i]}</div></div>`;
+  });
+  if(log.note)html+=`<div style="margin-top:10px;font-size:12px;color:var(--text-2);font-style:italic;padding-top:10px;border-top:1px solid var(--border)">"${log.note}"</div>`;
+  html+=`</div>`;
+  document.getElementById('history-card').innerHTML=html;
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+init();
+</script>
+</body>
+</html>
