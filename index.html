@@ -164,6 +164,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .empty-state{text-align:center;padding:32px 16px;color:var(--text-2);font-size:13px;line-height:1.6}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:500;opacity:0;pointer-events:none;transition:opacity 0.25s;z-index:999;white-space:nowrap}
 .toast.show{opacity:1}
+
+/* EXPORT */
+.export-overlay{position:fixed;inset:0;background:rgba(26,41,64,0.92);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.export-card{background:var(--white);border-radius:16px;padding:20px;width:100%;max-width:420px;max-height:80vh;display:flex;flex-direction:column;gap:12px}
+.export-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--navy)}
+.export-sub{font-size:12px;color:var(--text-2);line-height:1.5}
+.export-box{flex:1;min-height:180px;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--gray-light);font-size:11px;font-family:monospace;color:var(--text);resize:none;overflow-y:auto;line-height:1.6}
+.export-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.export-copy-btn{padding:11px;background:var(--navy);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.export-close-btn{padding:11px;background:var(--gray-light);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif}
 .hidden{display:none!important}
 .mt-8{margin-top:8px}
 .mt-12{margin-top:12px}
@@ -372,6 +382,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <div class="stat-box"><div class="stat-val" id="stat-streak">0</div><div class="stat-lbl">Week streak</div></div>
     </div>
   </div>
+  <button class="save-btn" style="background:var(--navy);margin-top:0" onclick="showExport()">Export progress for Claude</button>
 </div>
 
 <!-- HISTORY -->
@@ -382,6 +393,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   </div>
   <div class="card" id="history-card">
     <div id="history-list"></div>
+  </div>
+</div>
+
+
+<!-- EXPORT OVERLAY -->
+<div class="export-overlay hidden" id="export-overlay">
+  <div class="export-card">
+    <div class="export-title">Export progress</div>
+    <div class="export-sub">Copy this summary and paste it into a new Claude chat to get personalised program adjustments based on your actual progress.</div>
+    <textarea class="export-box" id="export-box" readonly></textarea>
+    <div class="export-btns">
+      <button class="export-copy-btn" onclick="copyExport()">Copy to clipboard</button>
+      <button class="export-close-btn" onclick="document.getElementById('export-overlay').classList.add('hidden')">Close</button>
+    </div>
   </div>
 </div>
 
@@ -899,6 +924,76 @@ function showHistDetail(key){
   document.getElementById('history-card').innerHTML=html;
 }
 
+
+function showExport(){
+  const totalSessions=Object.keys(logs).length;
+  if(!totalSessions){ showToast('No sessions logged yet'); return; }
+
+  // PRs
+  const prLines=KEY_LIFTS.map(lift=>{
+    const pr=prs[lift];
+    return pr ? `  ${lift}: ${pr.w}lb × ${pr.r} reps (${formatDateNice(pr.date)})` : `  ${lift}: not logged yet`;
+  }).join('\n');
+
+  // Last 8 sessions
+  const recent=Object.entries(logs).sort((a,b)=>b[1].date.localeCompare(a[1].date)).slice(0,8);
+  const sessionLines=recent.map(([,v])=>{
+    const exCount=Object.keys(v.exercises||{}).length;
+    const noteStr=v.note?` — "${v.note}"` : '';
+    return `  ${formatDateNice(v.date)}: ${v.dayName} (${exCount} exercises logged)${noteStr}`;
+  }).join('\n');
+
+  // Volume per session type
+  const volByDay={};
+  Object.values(logs).forEach(l=>{
+    if(!volByDay[l.dayName]) volByDay[l.dayName]=0;
+    Object.values(l.exercises||{}).forEach(ex=>{
+      ex.split(',').forEach(s=>{
+        const p=s.trim().split('×');
+        if(p.length===2){const w=parseFloat(p[0]),r=parseInt(p[1]);if(!isNaN(w)&&!isNaN(r))volByDay[l.dayName]+=w*r;}
+      });
+    });
+  });
+  const volLines=Object.entries(volByDay).map(([k,v])=>`  ${k}: ${v>1000?Math.round(v/1000)+'k':v} lbs total volume`).join('\n');
+
+  // Program week
+  const wk=Math.min(12,Math.floor(totalSessions/4)+1);
+
+  const summary=`FIREFIGHTER TRAINING PROGRAM — PROGRESS EXPORT
+================================================
+Program week: ${wk} of 12
+Total sessions logged: ${totalSessions}
+
+PERSONAL RECORDS
+${prLines}
+
+RECENT SESSIONS (last 8)
+${sessionLines}
+
+VOLUME BY SESSION TYPE
+${volLines}
+
+HOW TO USE THIS
+Paste this into a new Claude chat with a message like:
+"Here's my training progress. Can you review it and suggest any adjustments to my program?"`;
+
+  document.getElementById('export-box').value=summary;
+  document.getElementById('export-overlay').classList.remove('hidden');
+}
+
+function copyExport(){
+  const box=document.getElementById('export-box');
+  box.select();
+  try{
+    navigator.clipboard.writeText(box.value).then(()=>showToast('Copied!')).catch(()=>{
+      document.execCommand('copy');
+      showToast('Copied!');
+    });
+  }catch(e){
+    document.execCommand('copy');
+    showToast('Copied!');
+  }
+}
 function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
